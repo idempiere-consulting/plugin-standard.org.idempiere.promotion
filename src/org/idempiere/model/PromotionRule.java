@@ -30,20 +30,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.adempiere.exceptions.AdempiereException;
-import org.adempiere.model.MPromotionDistribution;
-import org.adempiere.model.MPromotionLine;
-import org.adempiere.model.MPromotionReward;
-import org.compiere.model.I_M_Promotion;
-import org.compiere.model.I_M_PromotionDistribution;
-import org.compiere.model.I_M_PromotionLine;
-import org.compiere.model.I_M_PromotionReward;
 import org.compiere.model.MOrder;
 import org.compiere.model.MOrderLine;
 import org.compiere.model.MTable;
 import org.compiere.model.Query;
 import org.compiere.util.DB;
 import org.compiere.util.Env;
-import org.idempiere.model.PromotionRule;
 
 /**
  * Static helper methods for promotion rule (M_Promotion)
@@ -71,7 +63,7 @@ public class PromotionRule {
 					orderLineIndex.put(ol.getC_OrderLine_ID(), ol);
 				}
 			} else if (ol.getC_Charge_ID() > 0) {
-				int id = ol.getM_Promotion_ID();
+				int id = ol.get_ValueAsInt("M_Promotion_ID");
 				if (id > 0) {
 					ol.delete(false);
 					hasDeleteLine = true;

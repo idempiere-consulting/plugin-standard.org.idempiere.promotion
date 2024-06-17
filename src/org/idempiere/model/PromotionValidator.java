@@ -66,7 +66,7 @@ public class PromotionValidator extends AbstractEventHandler {
 				MOrder order = orderLine.getParent();
 				String promotionCode = order.getPromotionCode();
 				if (orderLine.getC_Charge_ID() > 0) {
-					int promotionID = orderLine.getM_Promotion_ID();
+					int promotionID = orderLine.get_ValueAsInt("M_Promotion_ID");
 					if (promotionID > 0) {
 						int M_PromotionPreCondition_ID = findPromotionPreConditionId(
 								order, promotionCode, promotionID);
@@ -89,7 +89,7 @@ public class PromotionValidator extends AbstractEventHandler {
 		String promotionCode = order.getPromotionCode();
 		for (MOrderLine ol : lines) {
 			if (ol.getC_Charge_ID() > 0) {
-				int promotionID = ol.getM_Promotion_ID();
+				int promotionID = ol.get_ValueAsInt("M_Promotion_ID");
 				if (promotionID > 0) {
 
 					int M_PromotionPreCondition_ID = findPromotionPreConditionId(
@@ -112,7 +112,7 @@ public class PromotionValidator extends AbstractEventHandler {
 		String promotionCode = order.getPromotionCode();
 		for (MOrderLine ol : lines) {
 			if (ol.getC_Charge_ID() > 0) {
-				int promotionID = ol.getM_Promotion_ID();
+				int promotionID = ol.get_ValueAsInt("M_Promotion_ID");
 				if (promotionID > 0) {
 					int M_PromotionPreCondition_ID = findPromotionPreConditionId(
 							order, promotionCode, promotionID);
