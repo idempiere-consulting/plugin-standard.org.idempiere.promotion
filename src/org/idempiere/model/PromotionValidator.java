@@ -23,7 +23,7 @@ import org.compiere.util.DB;
 import org.osgi.service.event.Event;
 
 /**
- * 
+ * Model validator for {@link MOrder} for application of promotion rules.
  * @author hengsin
  * @contributor: <a href="mailto:victor.suarez.is@gmail.com">Ing. Victor Suarez</a>
  * 
@@ -34,6 +34,7 @@ public class PromotionValidator extends AbstractEventHandler {
 	protected void initialize() {
 		registerTableEvent(IEventTopics.PO_AFTER_DELETE, MOrderLine.Table_Name);
 		registerTableEvent(IEventTopics.DOC_AFTER_PREPARE, MOrder.Table_Name);
+		registerTableEvent(IEventTopics.DOC_AFTER_VOID, MOrder.Table_Name);
 	}
 	
 	@Override
@@ -63,10 +64,10 @@ public class PromotionValidator extends AbstractEventHandler {
 			MOrderLine orderLine = (MOrderLine) po;
 			if(IEventTopics.PO_AFTER_DELETE.equals(type)) {
 				MOrder order = orderLine.getParent();
-				String promotionCode = (String)order.get_Value("PromotionCode");
+				String promotionCode = order.getPromotionCode();
 				if (orderLine.getC_Charge_ID() > 0) {
-					Integer promotionID = (Integer) orderLine.get_Value("M_Promotion_ID");
-					if (promotionID != null && promotionID.intValue() > 0) {
+					int promotionID = orderLine.getM_Promotion_ID();
+					if (promotionID > 0) {
 						int M_PromotionPreCondition_ID = findPromotionPreConditionId(
 								order, promotionCode, promotionID);
 						if (M_PromotionPreCondition_ID > 0) {
@@ -79,13 +80,17 @@ public class PromotionValidator extends AbstractEventHandler {
 		}
 	}
 
+	/**
+	 * Increase M_PromotionPreCondition.PromotionCounter value
+	 * @param order
+	 */
 	private void increasePromotionCounter(MOrder order) {
 		MOrderLine[] lines = order.getLines(false, null);
-		String promotionCode = (String)order.get_Value("PromotionCode");
+		String promotionCode = order.getPromotionCode();
 		for (MOrderLine ol : lines) {
 			if (ol.getC_Charge_ID() > 0) {
-				Integer promotionID = (Integer) ol.get_Value("M_Promotion_ID");
-				if (promotionID != null && promotionID.intValue() > 0) {
+				int promotionID = ol.getM_Promotion_ID();
+				if (promotionID > 0) {
 
 					int M_PromotionPreCondition_ID = findPromotionPreConditionId(
 							order, promotionCode, promotionID);
@@ -98,14 +103,17 @@ public class PromotionValidator extends AbstractEventHandler {
 		}
 	}
 
+	/**
+	 * Decrease M_PromotionPreCondition.PromotionCounter value
+	 * @param order
+	 */
 	private void decreasePromotionCounter(MOrder order) {
 		MOrderLine[] lines = order.getLines(false, null);
-		String promotionCode = (String)order.get_Value("PromotionCode");
+		String promotionCode = order.getPromotionCode();
 		for (MOrderLine ol : lines) {
 			if (ol.getC_Charge_ID() > 0) {
-				Integer promotionID = (Integer) ol.get_Value("M_Promotion_ID");
-				if (promotionID != null && promotionID.intValue() > 0) {
-
+				int promotionID = ol.getM_Promotion_ID();
+				if (promotionID > 0) {
 					int M_PromotionPreCondition_ID = findPromotionPreConditionId(
 							order, promotionCode, promotionID);
 					if (M_PromotionPreCondition_ID > 0) {
@@ -117,8 +125,14 @@ public class PromotionValidator extends AbstractEventHandler {
 		}
 	}
 
+	/**
+	 * @param order
+	 * @param promotionCode
+	 * @param promotionID
+	 * @return M_PromotionPreCondition_ID
+	 */
 	private int findPromotionPreConditionId(MOrder order, String promotionCode,
-			Integer promotionID) {
+			int promotionID) {
 		String bpFilter = "M_PromotionPreCondition.C_BPartner_ID = ? OR M_PromotionPreCondition.C_BP_Group_ID = ? OR (M_PromotionPreCondition.C_BPartner_ID IS NULL AND M_PromotionPreCondition.C_BP_Group_ID IS NULL)";
 		String priceListFilter = "M_PromotionPreCondition.M_PriceList_ID IS NULL OR M_PromotionPreCondition.M_PriceList_ID = ?";
 		String warehouseFilter = "M_PromotionPreCondition.M_Warehouse_ID IS NULL OR M_PromotionPreCondition.M_Warehouse_ID = ?";
