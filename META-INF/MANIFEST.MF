@@ -4,6 +4,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Promotions for iDempiere
 Bundle-SymbolicName: org.idempiere.promotion
 Bundle-Version: 2.0.0.qualifier
+Export-Package: org.idempiere.model
 Automatic-Module-Name: org.idempiere.promotion
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
